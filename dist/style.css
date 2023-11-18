@@ -568,6 +568,12 @@ input[type='number']::-webkit-outer-spin-button,
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
+@media (min-width: 640px) {
+  .card {
+    transition-property: none;
+  }
+}
+
 @media (min-width: 768px) {
   .card {
     transition-property: all;
@@ -1026,6 +1032,10 @@ input[type='number']::-webkit-outer-spin-button,
 @media (min-width: 640px) {
   .sm\:col-span-3 {
     grid-column: span 3 / span 3;
+  }
+
+  .sm\:transition-none {
+    transition-property: none;
   }
 }
 
