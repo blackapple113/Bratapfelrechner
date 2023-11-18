@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .card {
+        @apply grid content-center rounded-xl bg-gray-500 overflow-hidden bg-cover bg-center h-48 bg-blend-multiply cursor-pointer text-center active:scale-95 active:bg-white transition-all select-none
+    }
+}
+
+/* Hides arrow buttons for input number fields */
+@layer base {
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button,
+    input[type='number'] {
+      -webkit-appearance: none;
+      margin: 0;
+      -moz-appearance: textfield !important;
+    }
+ }

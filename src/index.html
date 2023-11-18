@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" id="website">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../dist/style.css">
+    <title>Bratapfelrechner</title>
+
+    <script>
+        const information = {
+            items: [
+                { id: "punsch", name: "Bratapfelpunsch", shortname: "Punsch", price: 3.0, quantity: 0, addTo: "pfd_becher" },
+                { id: "zapfel", name: "Zapfel", shortname: "Zapfel", price: 2.5, quantity: 0, addTo: "pfd_becher" },
+                { id: "likoer", name: "Bratapfellikör", shortname: "Likör", price: 3.0, quantity: 0, addTo: "pfd_glas" },
+                { id: "" },
+                { id: "amaretto", name: "Amaretto", shortname: "Amaretto", price: 0.5, quantity: 0 },
+                { id: "calvados", name: "Calvados", shortname: "Calvados", price: 1.0, quantity: 0 },
+                { id: "apfel", name: "Bratapfel", shortname: "Apfel", price: 4.0, quantity: 0, addTo: "pfd_becher" },
+                { id: "vanille", name: "Vanillesoße", shortname: "Vanille", price: 0.5, quantity: 0 },
+                { id: "zimtzucker", name: "Zimtzucker", shortname: "Zi&Zu", price: 0.0, quantity: 0 },
+                { id: "" },
+                { id: "pfd_becher", name: "Pfandrückgabe<br>Becher/Schüssel", shortname: "Pfd. B&S", price: -5.0, quantity: 0 },
+                { id: "pfd_glas", name: "Pfandrückgabe<br>Likörglas", shortname: "Pfd. Glas", price: -1.0, quantity: 0 },
+            ],
+            total: 0.0,
+            money: [
+                { id: "50ct", value: 0.5, color: "bg-yellow-300" },
+                { id: "1euro", value: 1.0, color: "bg-amber-300" },
+                { id: "2euro", value: 2.0, color: "bg-slate-300" },
+                { id: "5euro", value: 5.0, color: "bg-teal-300" },
+                { id: "10euro", value: 10.0, color: "bg-orange-300" },
+                { id: "20euro", value: 20.0, color: "bg-blue-400" },
+                { id: "50euro", value: 50.0, color: "bg-amber-700" },
+                { id: "100euro", value: 100.0, color: "bg-green-300" },
+            ],
+            cash: 0.00,
+            fullscreen: false
+        }
+        // The wake lock sentinel.
+        let wakeLock = null;
+
+        function addItem(itemId, amount = 1) {
+            for (item of information.items) {
+                if (item.id === itemId) {
+                    item.quantity += amount;
+                    if (item.addTo !== undefined) {
+                        for (subItem of information.items) {
+                            if (item.addTo === subItem.id) {
+                                subItem.quantity += -amount;
+                            }
+                        }
+                    }
+                    update();
+                }
+            }
+        }
+
+        function subtractItem(itemId, amount = 1) {
+            for (item of information.items) {
+                if (item.id === itemId) {
+                    item.quantity -= amount;
+                    if (item.addTo !== undefined) {
+                        for (subItem of information.items) {
+                            if (item.addTo === subItem.id) {
+                                subItem.quantity -= -amount;
+                            }
+                        }
+                    }
+                    update();
+                }
+            }
+        }
+
+        function removeItem(itemId) {
+            for (item of information.items) {
+                if (item.id === itemId) {
+                    if (item.addTo !== undefined) {
+                        for (subItem of information.items) {
+                            if (item.addTo === subItem.id) {
+                                subItem.quantity -= item.quantity;
+                            }
+                        }
+                    }
+                    item.quantity = 0;
+                    update();
+                }
+            }
+        }
+
+        function update() {
+            updateRecipe();
+            updateTotal();
+            updateReturn();
+            updatePfand();
+        }
+
+        function resetCash() {
+            information.cash = 0.00;
+            updateCash();
+        }
+
+        function setCash() {
+            let cashElement = document.getElementById("cash");
+            information.cash = parseFloat(cashElement.value);
+            updateCash();
+        }
+
+        function addCash(value) {
+            information.cash += parseFloat(value);
+            updateCash();
+        }
+
+        function updateCash() {
+            let cashElement = document.getElementById("cash");
+            cashElement.value = information.cash.toFixed(2);
+            updateReturn();
+        }
+
+        function resetAll() {
+            for (item of information.items) {
+                item.quantity = 0;
+            }
+            information.total = 0.00;
+            information.cash = 0.00;
+            update();
+            updateCash();
+        }
+
+        function toggleFullscreen() {
+            let button = document.getElementById("fullscreen-button");
+            if (information.fullscreen) {
+                closeFullscreen();
+                releaseWakeLock();
+                button.innerHTML = "⛶";
+            } else {
+                openFullscreen();
+                requestWakeLock();
+                button.innerHTML = "🮻";
+            }
+            information.fullscreen = !information.fullscreen;
+        }
+
+        async function openFullscreen() {
+            let elem = document.getElementById("website");
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
+
+        function closeFullscreen() {
+            let elem = document.getElementById("website");
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+            }
+        }
+
+        // Function that attempts to request a wake lock.
+        const requestWakeLock = async () => {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        };
+
+        // Function that attempts to release the wake lock.
+        const releaseWakeLock = async () => {
+            if (!wakeLock) {
+                return;
+            }
+            try {
+                await wakeLock.release();
+                wakeLock = null;
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        };
+    </script>
+
+    <!-- ugly workaround because tailwind does not load images onload via javascript -->
+    <div class="hidden bg-[url('../img/amaretto.jpg')]"></div>
+    <div class="hidden bg-[url('../img/apfel.jpg')]"></div>
+    <div class="hidden bg-[url('../img/calvados.jpg')]"></div>
+    <div class="hidden bg-[url('../img/likoer.jpg')]"></div>
+    <div class="hidden bg-[url('../img/pfd_becher.jpg')]"></div>
+    <div class="hidden bg-[url('../img/pfd_glas.jpg')]"></div>
+    <div class="hidden bg-[url('../img/punsch.jpg')]"></div>
+    <div class="hidden bg-[url('../img/vanille.jpg')]"></div>
+    <div class="hidden bg-[url('../img/zapfel.jpg')]"></div>
+    <div class="hidden bg-[url('../img/zimtzucker.jpg')]"></div>
+</head>
+
+<body class="h-screen bg-gray-950">
+    <div class="grid lg:grid-cols-4 md:grid-cols-3 md:h-full">
+        <div id="selection" class="grid content-start lg:grid-cols-3 md:grid-cols-3 lg:col-span-3 md:col-span-2 sm:col-span-3 gap-4 p-4 overflow-auto">
+            <script>
+                for (item of information.items) {
+                    if (item.id !== "") {
+                        parent = document.getElementById("selection");
+                        parent.innerHTML += `
+                        <div  class="card bg-[url('../img/${item.id}.jpg')]" onclick="addItem('${item.id}')">
+                            <div class="text-3xl font-bold text-white">${item.name}</div>
+                            <div class="bg-white bg-opacity-20 p-2 my-4">
+                                    <div class="text-2xl font-bold text-white">${item.price.toFixed(2)} €</div>
+                            </div>
+                        </div>`;
+                    } else {
+                        parent = document.getElementById("selection");
+                        parent.innerHTML += `
+                        <div></div>`
+                    }
+                }
+            </script>
+        </div>
+        <aside class="flex flex-col justify-between bg-sky-900 pr-4 pb-4 pl-4 rounded-l-2xl md:col-span-1 sm:col-span-3">
+            <div class="grow flex flex-col justify-between my-4">
+                <div id="recipe" class="mb-2 space-y-4 max-h-[50vh] overflow-auto">
+                    <script>
+                        function updateRecipe() {
+                            html = ``;
+                            for (item of information.items) {
+                                if (item.quantity > 0 || item.id === "pfd_becher" || item.id === "pfd_glas") {
+                                    html += `
+                                        <div id="${item.id}" class="flex flex-row justify-between place-items-center bg-white rounded-xl overflow-hidden">
+                                            <div>
+                                                <button onclick="removeItem('${item.id}')" class="bg-red-300 active:bg-red-400 p-3 mr-2">🗑</button>
+                                                <span class="text-lg">${item.shortname}</span>
+                                            </div>
+                                            
+                                            <div>
+                                                <div class="flex flex-row h-8 w-full rounded-lg relative bg-transparent mr-2 place-items-center">
+                                                    <div class="font-bold mr-2 text-lg">
+                                                    ${(item.quantity * item.price).toFixed(2)} €
+                                                    </div>
+                                                    <button onclick="subtractItem('${item.id}')" class=" bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-8 rounded-l cursor-pointer outline-none">
+                                                        <span class="m-auto text-2xl font-thin">-</span>
+                                                    </button>
+                                                    <input type="number" class="outline-none text-xl focus:outline-none text-center h-full w-6 bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700" name="custom-input-number" value="`+ item.quantity + `" disabled></input>
+                                                    <button onclick="addItem('${item.id}')" class="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-8 rounded-r cursor-pointer">
+                                                        <span class="m-auto text-2xl font-thin">+</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        `
+                                }
+                            }
+                            document.getElementById('recipe').innerHTML = html;
+                        }
+                    </script>
+
+                    <div id="pfd_becher"
+                        class="flex flex-row justify-between place-items-center bg-white rounded-xl overflow-hidden">
+                        <div>
+                            <button onclick="removeItem('pfd_becher')"
+                                class="bg-red-300 active:bg-red-400 p-3 mr-2">🗑</button>
+                            <span class="text-lg">Pfd. B&S</span>
+                        </div>
+
+                        <div>
+                            <div
+                                class="flex flex-row h-8 w-full rounded-lg relative bg-transparent mr-2 place-items-center">
+                                <div class="font-bold mr-2 text-lg">
+                                    0.00 €
+                                </div>
+                                <button onclick="subtractItem('pfd_becher')"
+                                    class=" bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-8 rounded-l cursor-pointer outline-none">
+                                    <span class="m-auto text-2xl font-thin">-</span>
+                                </button>
+                                <input type="number"
+                                    class="outline-none text-lg focus:outline-none text-center h-full w-6 bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700"
+                                    name="custom-input-number" value="0">
+                                <button onclick="addItem('pfd_becher')"
+                                    class="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-8 rounded-r cursor-pointer">
+                                    <span class="m-auto text-2xl font-thin">+</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="pfd_glas"
+                        class="flex flex-row justify-between place-items-center bg-white rounded-xl overflow-hidden">
+                        <div>
+                            <button onclick="removeItem('pfd_glas')"
+                                class="bg-red-300 active:bg-red-400 p-3 mr-2">🗑</button>
+                            <span class="text-lg">Pfd. Glas</span>
+                        </div>
+
+                        <div>
+                            <div
+                                class="flex flex-row h-8 w-full rounded-lg relative bg-transparent mr-2 place-items-center">
+                                <div class="font-bold mr-2 text-lg">
+                                    0.00 €
+                                </div>
+                                <button onclick="subtractItem('pfd_glas')"
+                                    class=" bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-8 rounded-l cursor-pointer outline-none">
+                                    <span class="m-auto text-2xl font-thin">-</span>
+                                </button>
+                                <input type="number"
+                                    class="outline-none text-lg focus:outline-none text-center h-full w-6 bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700"
+                                    name="custom-input-number" value="0">
+                                <button onclick="addItem('pfd_glas')"
+                                    class="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-8 rounded-r cursor-pointer">
+                                    <span class="m-auto text-2xl font-thin">+</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div>
+                    <div class="flex flex-col">
+                        <div class="flex flex-row justify-between font-bold text-white text-2xl">
+                            <span>Gesamt:</span>
+                            <span id="total" class="mr-2">
+                                <script>
+                                    function updateTotal() {
+                                        let total = 0
+                                        for (item of information.items) {
+                                            if (item.id !== "") {
+                                                total += item.price * item.quantity
+                                            }
+                                        }
+                                        information.total = total.toFixed(2)
+                                        document.getElementById("total").innerHTML = information.total + " €";
+                                    }
+                                </script>
+                                0.00 €
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex flex-row justify-between font-bold text-white text-lg opacity-70">
+                            <span class="translate-x-5">davon Pfand:</span>
+                            <span id="pfand" class="mr-2">
+                                <script>
+                                    function updatePfand() {
+                                        let total = 0
+                                        for (item of information.items) {
+                                            if (item.id !== "" && item.id === "pfd_becher" || item.id !== "" && item.id === "pfd_glas") {
+                                                total += item.price * item.quantity
+                                            }
+                                        }
+                                        document.getElementById("pfand").innerHTML = total.toFixed(2) + " €";
+                                    }
+                                </script>
+                                0.00 €
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row justify-between place-items-center text-2xl font-bold">
+                        <span class="text-white">Bar:</span>
+                        <div class="bg-white text-black overflow-hidden rounded-lg">
+                            <button onclick="resetCash()"
+                                class="px-3 py-2 bg-red-300 active:bg-red-400 text-base font-normal">🗑</button>
+                            <input onchange="setCash()" id="cash" type="number" min="0.00" step="0.01" value="0.00"
+                                class="w-20 text-right outline-none focus:outline-none"></input>
+                            <span class="pr-2">€</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-row justify-between text-2xl font-bold text-white mr-2 mb-2">
+                        Wechselgeld:
+
+                        <div id="return">
+                            <script>
+                                function updateReturn() {
+                                    document.getElementById("return").innerHTML = (information.cash - information.total).toFixed(2) + " €";
+                                }
+                            </script>
+                            0.00 €
+                        </div>
+                    </div>
+                    <div id="money-section" class="grid grid-cols-3 gap-3 font-bold text-center items-center">
+                        <script>
+                            for (money of information.money) {
+                                parent = document.getElementById("money-section");
+                                parent.innerHTML += `
+                                    <div onclick="addCash('${money.value}')" class="cursor-pointer select-none active:scale-95 ${money.color} rounded-lg py-3 text-2xl">${money.value} €</div>`
+                            }
+                        </script>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-row gap-2">
+                <button id="fullscreen-button" class="rounded-xl bg-slate-400 text-3xl w-20" onclick="toggleFullscreen()">⛶</button>
+                <button onclick="resetAll()"
+                    class="bg-green-600 text-white p-4 rounded-xl w-full active:scale-95 transition-all text-2xl font-bold">
+                    Bestätigen
+                </button>
+            </div>
+        </aside>
+    </div>
+</body>
+
+</html>
