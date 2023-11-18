@@ -826,48 +826,48 @@ input[type='number']::-webkit-outer-spin-button,
   --tw-bg-opacity: 0.2;
 }
 
-.bg-\[url\(\'\.\.\/img\/\$\{item\.id\}\.jpg\'\)\] {
-  background-image: url('../img/${item.id}.jpg');
+.bg-\[url\(\'\.\.\/img\/\$\{item\.id\}\.png\'\)\] {
+  background-image: url('../img/${item.id}.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/amaretto\.jpg\'\)\] {
-  background-image: url('../img/amaretto.jpg');
+.bg-\[url\(\'\.\.\/img\/amaretto\.png\'\)\] {
+  background-image: url('../img/amaretto.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/apfel\.jpg\'\)\] {
-  background-image: url('../img/apfel.jpg');
+.bg-\[url\(\'\.\.\/img\/apfel\.png\'\)\] {
+  background-image: url('../img/apfel.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/calvados\.jpg\'\)\] {
-  background-image: url('../img/calvados.jpg');
+.bg-\[url\(\'\.\.\/img\/calvados\.png\'\)\] {
+  background-image: url('../img/calvados.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/likoer\.jpg\'\)\] {
-  background-image: url('../img/likoer.jpg');
+.bg-\[url\(\'\.\.\/img\/likoer\.png\'\)\] {
+  background-image: url('../img/likoer.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/pfd_becher\.jpg\'\)\] {
-  background-image: url('../img/pfd_becher.jpg');
+.bg-\[url\(\'\.\.\/img\/pfd_becher\.png\'\)\] {
+  background-image: url('../img/pfd_becher.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/pfd_glas\.jpg\'\)\] {
-  background-image: url('../img/pfd_glas.jpg');
+.bg-\[url\(\'\.\.\/img\/pfd_glas\.png\'\)\] {
+  background-image: url('../img/pfd_glas.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/punsch\.jpg\'\)\] {
-  background-image: url('../img/punsch.jpg');
+.bg-\[url\(\'\.\.\/img\/punsch\.png\'\)\] {
+  background-image: url('../img/punsch.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/vanille\.jpg\'\)\] {
-  background-image: url('../img/vanille.jpg');
+.bg-\[url\(\'\.\.\/img\/vanille\.png\'\)\] {
+  background-image: url('../img/vanille.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/zapfel\.jpg\'\)\] {
-  background-image: url('../img/zapfel.jpg');
+.bg-\[url\(\'\.\.\/img\/zapfel\.png\'\)\] {
+  background-image: url('../img/zapfel.png');
 }
 
-.bg-\[url\(\'\.\.\/img\/zimtzucker\.jpg\'\)\] {
-  background-image: url('../img/zimtzucker.jpg');
+.bg-\[url\(\'\.\.\/img\/zimtzucker\.png\'\)\] {
+  background-image: url('../img/zimtzucker.png');
 }
 
 .p-2 {
