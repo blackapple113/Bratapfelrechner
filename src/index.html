@@ -187,16 +187,16 @@
     </script>
 
     <!-- ugly workaround because tailwind does not load images onload via javascript -->
-    <div class="hidden bg-[url('../img/amaretto.png')]"></div>
-    <div class="hidden bg-[url('../img/apfel.png')]"></div>
-    <div class="hidden bg-[url('../img/calvados.png')]"></div>
-    <div class="hidden bg-[url('../img/likoer.png')]"></div>
-    <div class="hidden bg-[url('../img/pfd_becher.png')]"></div>
-    <div class="hidden bg-[url('../img/pfd_glas.png')]"></div>
-    <div class="hidden bg-[url('../img/punsch.png')]"></div>
-    <div class="hidden bg-[url('../img/vanille.png')]"></div>
-    <div class="hidden bg-[url('../img/zapfel.png')]"></div>
-    <div class="hidden bg-[url('../img/zimtzucker.png')]"></div>
+    <div class="hidden bg-[url('../img/amaretto.jpg')]"></div>
+    <div class="hidden bg-[url('../img/apfel.jpg')]"></div>
+    <div class="hidden bg-[url('../img/calvados.jpg')]"></div>
+    <div class="hidden bg-[url('../img/likoer.jpg')]"></div>
+    <div class="hidden bg-[url('../img/pfd_becher.jpg')]"></div>
+    <div class="hidden bg-[url('../img/pfd_glas.jpg')]"></div>
+    <div class="hidden bg-[url('../img/punsch.jpg')]"></div>
+    <div class="hidden bg-[url('../img/vanille.jpg')]"></div>
+    <div class="hidden bg-[url('../img/zapfel.jpg')]"></div>
+    <div class="hidden bg-[url('../img/zimtzucker.jpg')]"></div>
 </head>
 
 <body class="h-screen bg-gray-950">
@@ -207,7 +207,7 @@
                     if (item.id !== "") {
                         parent = document.getElementById("selection");
                         parent.innerHTML += `
-                        <div  class="card bg-[url('../img/${item.id}.png')]" onclick="addItem('${item.id}')">
+                        <div  class="card bg-[url('../img/${item.id}.jpg')]" onclick="addItem('${item.id}')">
                             <div class="text-3xl font-bold text-white">${item.name}</div>
                             <div class="bg-white bg-opacity-20 p-2 my-4">
                                     <div class="text-2xl font-bold text-white">${item.price.toFixed(2)} €</div>
