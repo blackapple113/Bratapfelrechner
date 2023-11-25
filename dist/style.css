@@ -568,20 +568,6 @@ input[type='number']::-webkit-outer-spin-button,
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
-@media (min-width: 640px) {
-  .card {
-    transition-property: none;
-  }
-}
-
-@media (min-width: 768px) {
-  .card {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-}
-
 .relative {
   position: relative;
 }

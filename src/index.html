@@ -93,8 +93,7 @@
             updateTotal();
             updateReturn();
             updatePfand();
-            navigator.vibrate(150);
-            console.log("vibration");
+            navigator.vibrate(100);
         }
 
         function resetCash() {
@@ -138,7 +137,7 @@
             } else {
                 openFullscreen();
                 requestWakeLock();
-                button.innerHTML = "🮻";
+                button.innerHTML = "🗙";
             }
             information.fullscreen = !information.fullscreen;
         }
@@ -399,7 +398,7 @@
             <div class="flex flex-row gap-2">
                 <button id="fullscreen-button" class="rounded-xl bg-slate-400 text-3xl w-20" onclick="toggleFullscreen()">⛶</button>
                 <button onclick="resetAll()"
-                    class="bg-green-600 text-white p-4 rounded-xl w-full active:scale-95 md:transition-all sm:transition-none text-2xl font-bold">
+                    class="bg-green-600 text-white p-4 rounded-xl w-full active:scale-95 text-2xl font-bold">
                     Bestätigen
                 </button>
             </div>
