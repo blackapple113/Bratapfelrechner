@@ -93,7 +93,7 @@
             updateTotal();
             updateReturn();
             updatePfand();
-            vibrate();
+            // vibrate();
         }
 
         function resetCash() {
@@ -116,7 +116,7 @@
             let cashElement = document.getElementById("cash");
             cashElement.value = information.cash.toFixed(2);
             updateReturn();
-            vibrate();
+            // vibrate();
         }
 
         function resetAll() {
@@ -125,9 +125,8 @@
             }
             information.total = 0.00;
             information.cash = 0.00;
-            let cashElement = document.getElementById("cash");
-            cashElement.value = 0;
             update();
+            updateCash();
             window.scrollTo({top: 0, behavior:"instant"});
         }
 
