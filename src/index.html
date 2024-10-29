@@ -125,7 +125,8 @@
             }
             information.total = 0.00;
             information.cash = 0.00;
-            updateCash();
+            let cashElement = document.getElementById("cash");
+            cashElement.value = 0;
             update();
             window.scrollTo({top: 0, behavior:"instant"});
         }
