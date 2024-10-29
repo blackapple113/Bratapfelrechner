@@ -115,6 +115,7 @@
         function updateCash() {
             let cashElement = document.getElementById("cash");
             cashElement.value = information.cash.toFixed(2);
+            console.log(cashElement.value);
             updateReturn();
             vibrate();
         }
@@ -126,7 +127,7 @@
             information.total = 0.00;
             information.cash = 0.00;
             update();
-            resetCash();
+            updateCash();
             window.scrollTo({top: 0, behavior:"instant"});
         }
 
